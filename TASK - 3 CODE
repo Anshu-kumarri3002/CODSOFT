@@ -1,0 +1,59 @@
+# Import necessary libraries
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Step 1: Load the Iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+species = iris.target_names
+
+# Convert the dataset into a DataFrame for better visualization
+iris_df = pd.DataFrame(data=X, columns=iris.feature_names)
+iris_df['species'] = [species[label] for label in y]
+
+print("Dataset Overview:\n")
+print(iris_df.head())
+
+# Step 2: Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Step 3: Train a classification model
+model = RandomForestClassifier(random_state=42)
+model.fit(X_train, y_train)
+
+# Step 4: Make predictions
+y_pred = model.predict(X_test)
+
+# Step 5: Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+print("\nModel Accuracy:", accuracy)
+
+print("\nClassification Report:\n")
+print(classification_report(y_test, y_pred, target_names=species))
+
+# Confusion matrix
+conf_matrix = confusion_matrix(y_test, y_pred)
+
+# Visualizing the confusion matrix
+plt.figure(figsize=(8, 6))
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=species, yticklabels=species)
+plt.title('Confusion Matrix')
+plt.xlabel('Predicted Label')
+plt.ylabel('True Label')
+plt.show()
+
+# Step 6: Test with new samples (optional)
+sample_data = [[5.1, 3.5, 1.4, 0.2]]  # Example: Setosa features
+predicted_class = model.predict(sample_data)
+print("\nPrediction for sample data:", species[predicted_class[0]])
+
+# Step 7: Save the model (optional)
+import joblib
+joblib.dump(model, "iris_flower_model.pkl")
+print("Model saved as 'iris_flower_model.pkl'")
